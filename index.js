@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const GoogleAssistant = require('google-assistant');
-const ffmpeg = require('fluent-ffmpeg');
+// const ffmpeg = require('fluent-ffmpeg');
+const fs = require('fs');
 
 var bot = new Discord.Client();
 var assistant = new GoogleAssistant({
@@ -17,24 +18,16 @@ var assistant = new GoogleAssistant({
 bot
 	.on('msg', (msg) => {
 		if (msg.author.bot) return;
-		if (msg.content.toLowerCase() === 'join' && msg.channel.type === 'text' && msg.member.voiceChannel !== undefined) {
+		// Join a voiceChannel
+		if (msg.content.toLowerCase() === 'gjoin' && msg.channel.type === 'text' && msg.member.voiceChannel !== undefined) {
 			msg.member.voiceChannel.join()
 			.then(connection => {
-				let reciever = connection.createReciever();
-				let stream = ffmpeg()
-				.input(reciever.createOpusStream(msg.author))
-				.audioBitrate(24000)
-				.audioChannels(1)
-				.audioCodec('FLAC')
-				.pipe();
-				connection.playStream(stream)
-				.on('end', reason => {
-					connection.disconnect();
-				});
+				msg.reply(`OK, Joining ${msg.member.voiceChannel}`);
+			}, e => {
+				msg.reply(`Error joining your channel: ${e}`);
 			});
 			msg.delete(10000);
 		}
-		if (!msg.content.startsWith('!')) return;
 	});
 
 assistant
@@ -42,7 +35,11 @@ assistant
 		bot.login('AUTHKEY');
 	})
 	.on('started', conversation => {
-
+		let file = fs.createWriteStream('stuff');
+		conversation
+			.on('data', data => {
+				file.write(data);
+			});
 	})
 	.on('error', e => {
 		throw e;
