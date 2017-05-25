@@ -18,15 +18,24 @@ var assistant = new GoogleAssistant({
 bot
 	.on('msg', (msg) => {
 		if (msg.author.bot) return;
+		if (msg.channel.type !== 'text') return msg.reply('Sorry, I only work in text channels').then(m => { m.delete(10000); });
 		// Join a voiceChannel
-		if (msg.content.toLowerCase() === 'gjoin' && msg.channel.type === 'text' && msg.member.voiceChannel !== undefined) {
+		if (msg.content.toLowerCase() === 'gjoin' && msg.member.voiceChannel !== undefined) {
 			msg.member.voiceChannel.join()
 			.then(connection => {
-				msg.reply(`OK, Joining ${msg.member.voiceChannel}`);
+				msg.reply(`OK, Joining ${msg.member.voiceChannel}`)
+					.then(m => {
+						m.delete(10000);
+					});
 			}, e => {
-				msg.reply(`Error joining your channel: ${e}`);
+				msg.reply(`Error joining your channel: ${e}`)
+					.then(m => {
+						m.delete(10000);
+					});
 			});
 			msg.delete(10000);
+		} else if (msg.content.toLowerCase() === 'ghelp') {
+			msg.reply("I'm your personal assistant, use 'gjoin' to make me join your channel");
 		}
 	});
 
