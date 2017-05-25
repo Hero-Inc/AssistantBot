@@ -1,7 +1,18 @@
 const Discord = require('discord.js');
 const GoogleAssistant = require('google-assistant');
+const Snowboy = require('snowboy');
 // const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
+
+
+var detector = new Snowboy.Detector();
+var models = new Snowboy.Models();
+
+models.add({
+	file: '',
+	sensitivity: 0.5,
+	hotwords: '',
+});
 
 var bot = new Discord.Client();
 var assistant = new GoogleAssistant({
@@ -14,6 +25,20 @@ var assistant = new GoogleAssistant({
 		sampleRateOut: 24000,
 	},
 });
+
+detector
+	.on('silence', () => {
+		console.log('silence');
+	})
+	.on('sound', buffer => {
+		console.log('sound');
+	})
+	.on('hotword', (index, hotword, buffer) => {
+		console.log('hotword', index, hotword);
+	})
+	.on('error', () => {
+		console.log('error');
+	});
 
 bot
 	.on('msg', (msg) => {
