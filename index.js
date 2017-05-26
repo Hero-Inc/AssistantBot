@@ -48,19 +48,19 @@ bot.registerCommand(
 					let pass = new stream.PassThrough();
 					let speaking = false;
 					assistant
-						.on('audio-data', data => {
-							pass.write(data);
-							if (!speaking) {
-								conn.play(pass);
-								speaking = true;
-							}
-						})
 						.on('ready', () => {
 							ready = true;
 						})
 						.on('started', conversation => {
 							assisting = true;
 							conversation
+								.on('audio-data', data => {
+									pass.write(data);
+									if (!speaking) {
+										conn.play(pass);
+										speaking = true;
+									}
+								})
 								.on('end-of-utterance', () => {
 									receive.pause();
 								})
