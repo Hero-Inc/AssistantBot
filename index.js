@@ -62,7 +62,7 @@ bot.registerCommand(
 							assisting = true;
 							conversation
 								.on('end-of-utterance', () => {
-									receive.end();
+									receive.pause();
 								})
 								.on('transcription', text => {
 									console.log(`Transcript: ${text}`);
@@ -71,11 +71,9 @@ bot.registerCommand(
 									if (err) {
 										console.log(err);
 									} else if (continueConversation) {
-										receive = conn.receive('opus');
 										assistant.start();
 									} else {
 										assisting = false;
-										receive = conn.receive('opus');
 										receive.pipe(detector);
 									}
 								})
