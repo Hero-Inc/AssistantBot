@@ -40,6 +40,7 @@ bot.registerCommand(
 						},
 						audio: {
 							encodingIn: 'FLAC',
+							encodingOut: 'OPUS_IN_OGG',
 							sampleRateOut: 24000,
 						},
 					});
@@ -84,7 +85,7 @@ bot.registerCommand(
 							// Send user data to the conversation
 							ffmpeg(receive)
 								.audioCodec('flac')
-								.audioBitrate(24000)
+								.audioBitrate(16000)
 								.audioChannels(1)
 								.pipe(conversation);
 						});
