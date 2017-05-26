@@ -68,6 +68,7 @@ bot.registerCommand(
 									console.log(`Transcript: ${text}`);
 								})
 								.on('ended', (err, continueConversation) => {
+									speaking = false;
 									if (err) {
 										console.log(err);
 									} else if (continueConversation) {
