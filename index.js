@@ -68,6 +68,9 @@ bot.registerCommand(
 								.on('transcription', text => {
 									console.log(`Transcript: ${text}`);
 								})
+								.on('response', text => {
+									bot.createMessage(msg.channel.id, text);
+								})
 								.on('ended', (err, continueConversation) => {
 									speaking = false;
 									if (err) {
@@ -99,7 +102,7 @@ bot.registerCommand(
 					receive.pipe(detector);
 				});
 		}
-		bot.createMessage(msg.channel.id, 'Hello');
+		return 'Hello';
 	},
 	{
 		aliases: ['voice', 'come'],
