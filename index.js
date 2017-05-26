@@ -36,7 +36,7 @@ bot.registerCommand(
 					let assistant = new GoogleAssistant({
 						auth: {
 							keyFilePath: 'resources/clientsecret.json',
-							savedTokensPath: 'resources/tokens.json',
+							savedTokensPath: 'resources/tokens.js',
 						},
 						audio: {
 							encodingIn: 'FLAC',
