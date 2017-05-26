@@ -6,7 +6,7 @@ const stream = require('stream');
 
 var models = new Snowboy.Models();
 models.add({
-	file: 'okgoogle.pmdl',
+	file: 'resources/okgoogle.umdl',
 	sensitivity: 0.5,
 	hotwords: 'OK Google',
 });
@@ -35,8 +35,8 @@ bot.registerCommand(
 					let detector = new Snowboy.Detector();
 					let assistant = new GoogleAssistant({
 						auth: {
-							keyFilePath: '',
-							savedTokensPath: '',
+							keyFilePath: 'resources/clientsecret.json',
+							savedTokensPath: 'resources/tokens.json',
 						},
 						audio: {
 							encodingIn: 'FLAC',
