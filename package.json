@@ -1,0 +1,31 @@
+{
+  "name": "discord-google-assistant",
+  "version": "1.0.0",
+  "description": "Google Assistant on Discord",
+  "main": "index.js",
+  "dependencies": {
+    "discord.io": "^2.5.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "google-assistant": "^0.1.5",
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heroj04/DiscordGoogleAssistant.git"
+  },
+  "keywords": [
+    "Discord",
+    "Google",
+    "Assistant",
+    "Bot"
+  ],
+  "author": "Heroj04",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Heroj04/DiscordGoogleAssistant/issues"
+  },
+  "homepage": "https://github.com/Heroj04/DiscordGoogleAssistant#readme"
+}
