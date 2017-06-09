@@ -1,5 +1,5 @@
 const Discord = require('discord.io');
-// const fs = require('fs');
+const fs = require('fs');
 const Assistant = require('google-assistant');
 const Snowboy = require('snowboy');
 const config = require('./config.js');
@@ -33,6 +33,7 @@ var assistant = new Assistant({
 });
 
 var currentChannel = '';
+var currentStream;
 
 bot
 	.on('error', err => {
@@ -65,12 +66,14 @@ bot
 									to: config.owner,
 									message: e,
 								});
+								currentStream.unpipe();
 								bot.leaveVoiceChannel(currentChannel, () => {
 									currentChannel = '';
 								});
 								return;
 							}
-							stream.pipe(detector, { end: false });
+							currentStream = stream;
+							currentStream.pipe(detector, { end: false });
 						});
 					});
 					break;
@@ -90,6 +93,7 @@ bot
 			if (message.d.user_id === config.owner) {
 				// It was the owner, follow them
 				if (message.d.channel_id === undefined && currentChannel !== '') {
+					currentStream.unpipe();
 					bot.leaveVoiceChannel(currentChannel, () => {
 						currentChannel = '';
 					});
@@ -113,12 +117,14 @@ bot
 									to: config.owner,
 									message: e,
 								});
+								currentStream.unpipe();
 								bot.leaveVoiceChannel(currentChannel, () => {
 									currentChannel = '';
 								});
 								return;
 							}
-							stream.pipe(detector, { end: false });
+							currentStream = stream;
+							currentStream.pipe(detector, { end: false });
 						});
 					});
 				}
@@ -141,12 +147,14 @@ bot
 								to: config.owner,
 								message: e,
 							});
+							currentStream.unpipe();
 							bot.leaveVoiceChannel(currentChannel, () => {
 								currentChannel = '';
 							});
 							return;
 						}
-						stream.pipe(detector, { end: false });
+						currentStream = stream;
+						currentStream.pipe(detector, { end: false });
 					});
 				});
 			}
@@ -159,6 +167,12 @@ detector
 	})
 	.on('hotword', (index, hotword, buffer) => {
 		// assistant.start();
+		fs.writeFile(`./hotwordSamples/${hotword}${new Date().now()}.wav`, buffer, () => {
+			bot.sendMessage({
+				to: config.owner,
+				message: 'Saved hotword sample',
+			});
+		});
 		bot.sendMessage({
 			to: config.owner,
 			message: 'Hotword Detected',
