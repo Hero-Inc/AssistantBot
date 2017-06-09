@@ -1,7 +1,21 @@
 const Discord = require('discord.io');
 // const fs = require('fs');
 const Assistant = require('google-assistant');
+const Snowboy = require('snowboy');
 const config = require('./config.js');
+
+var models = new Snowboy.Models();
+models.add({
+	file: './resources/snowboy.umdl',
+	sensitivity: 0.5,
+	hotword: 'Snowboy',
+});
+
+var detector = new Snowboy.Detector({
+	resource: './resources/common.res',
+	models: models,
+	audioGain: 2.0,
+});
 
 var bot = new Discord.Client({
 	token: config.token,
@@ -21,62 +35,13 @@ var assistant = new Assistant({
 var currentChannel = '';
 
 bot
+	.on('error', err => {
+		console.error(err);
+	})
 	.on('message', (user, userID, channelID, msg) => {
 		if (bot.users[userID].bot) return;
 		if (bot.channels[channelID].type !== 'text') return;
 		if (!msg.startsWith('$')) return;
-		/*
-		let command = msg.split(' ')[0]
-			.toLowerCase()
-			.substring(1);
-
-		switch (command) {
-			case 'join': {
-				let voiceID = bot.servers[bot.channels[channelID].guild_id].members[userID].voice_channel_id;
-				if (voiceID === undefined) {
-					return bot.sendMessage({
-						to: channelID,
-						message: 'You must be in a voice channel to use this command',
-					});
-				}
-				bot.joinVoiceChannel(voiceID, err => {
-					if (err) {
-						console.log(err);
-						return bot.sendMessage({
-							to: channelID,
-							message: err,
-						});
-					}
-					bot.getAudioContext({
-						channelID: voiceID,
-						maxStreamSize: 50 * 1024,
-					}, (e, stream) => {
-						if (e) {
-							console.log(e);
-							return bot.sendMessage({
-								to: channelID,
-								message: e,
-							});
-						}
-						stream.pipe(fs.createWriteStream('./everyone.wav'));
-					});
-				});
-				break;
-			}
-			case 'leave': {
-				let voiceChannelID = bot.servers[bot.channels[channelID].guild_id].members[userID].voice_channel_id;
-				if (voiceChannelID === undefined) {
-					return bot.sendMessage({
-						to: channelID,
-						message: 'You must be in a voice channel to use this command',
-					});
-				}
-				break;
-			}
-			default:
-				return;
-		}
-		*/
 	})
 	.on('ready', () => {
 		// Start searching for our owner
@@ -93,6 +58,20 @@ bot
 							});
 						}
 						currentChannel = channelID;
+						bot.getAudioContext({ channelID: currentChannel, maxStreamSize: 50 * 1024 }, (e, stream) => {
+							if (e) {
+								console.log(e);
+								bot.sendMessage({
+									to: config.owner,
+									message: e,
+								});
+								bot.leaveVoiceChannel(currentChannel, () => {
+									currentChannel = '';
+								});
+								return;
+							}
+							stream.pipe(detector);
+						});
 					});
 					break;
 				}
@@ -127,6 +106,20 @@ bot
 							// TODO: Check if we leave our channel when attempting to join another channel and failing
 						}
 						currentChannel = message.d.channel_id;
+						bot.getAudioContext({ channelID: currentChannel, maxStreamSize: 50 * 1024 }, (e, stream) => {
+							if (e) {
+								console.log(e);
+								bot.sendMessage({
+									to: config.owner,
+									message: e,
+								});
+								bot.leaveVoiceChannel(currentChannel, () => {
+									currentChannel = '';
+								});
+								return;
+							}
+							stream.pipe(detector);
+						});
 					});
 				}
 			} else if (message.d.user_id === bot.id) {
@@ -141,9 +134,35 @@ bot
 						});
 						// TODO: Check if we leave our channel when attempting to join another channel and failing
 					}
+					bot.getAudioContext({ channelID: currentChannel, maxStreamSize: 50 * 1024 }, (e, stream) => {
+						if (e) {
+							console.log(e);
+							bot.sendMessage({
+								to: config.owner,
+								message: e,
+							});
+							bot.leaveVoiceChannel(currentChannel, () => {
+								currentChannel = '';
+							});
+							return;
+						}
+						stream.pipe(detector);
+					});
 				});
 			}
 		}
+	});
+
+detector
+	.on('error', () => {
+		console.error('Snowboy Detector Error');
+	})
+	.on('hotword', (index, hotword, buffer) => {
+		// assistant.start();
+		bot.sendMessage({
+			to: config.owner,
+			message: 'Hotword Detected',
+		});
 	});
 
 assistant
