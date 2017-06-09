@@ -177,6 +177,8 @@ detector
 			to: config.owner,
 			message: 'Hotword Detected',
 		});
+		currentStream.unpipe();
+		assistant.start();
 	});
 
 assistant
@@ -184,7 +186,42 @@ assistant
 		bot.connect();
 	})
 	.on('started', (conversation) => {
-		//
+		console.log('A conversation has begun');
+		conversation
+			.on('error', err => {
+				console.log(err);
+				bot.sendMessage({
+					to: config.owner,
+					message: err,
+				});
+			})
+			.on('audio-data', data => {
+				currentStream.write(data);
+			})
+			.on('end-of-utterance', () => {
+				currentStream.unpipe();
+			})
+			.on('transcription', text => {
+				bot.sendMessage({
+					to: config.owner,
+					message: text,
+				});
+			})
+			.on('ended', (err, continueConversation) => {
+				if (err) {
+					console.log(err);
+					bot.sendMessage({
+						to: config.owner,
+						message: err,
+					});
+				} else if (continueConversation) {
+					assistant.start();
+				} else {
+					console.log('Conversation Complete');
+					currentStream.pipe(detector);
+				}
+			});
+		currentStream.pipe(conversation, { end: false });
 	})
 	.on('error', err => {
 		console.error(err);
