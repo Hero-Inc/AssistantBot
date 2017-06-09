@@ -218,7 +218,7 @@ assistant
 					assistant.start();
 				} else {
 					console.log('Conversation Complete');
-					currentStream.pipe(detector);
+					currentStream.pipe(detector, { end: false });
 				}
 			});
 		currentStream.pipe(conversation, { end: false });
