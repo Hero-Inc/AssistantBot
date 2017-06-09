@@ -70,7 +70,7 @@ bot
 								});
 								return;
 							}
-							stream.pipe(detector);
+							stream.pipe(detector, { end: false });
 						});
 					});
 					break;
@@ -118,7 +118,7 @@ bot
 								});
 								return;
 							}
-							stream.pipe(detector);
+							stream.pipe(detector, { end: false });
 						});
 					});
 				}
@@ -146,7 +146,7 @@ bot
 							});
 							return;
 						}
-						stream.pipe(detector);
+						stream.pipe(detector, { end: false });
 					});
 				});
 			}
